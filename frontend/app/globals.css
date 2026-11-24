@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #fafaf9;
+  --bg-deep: #f4f4f5;
+  --ink: #18181b;
+  --muted: #71717a;
+  --line: #e4e4e7;
+  --accent: #e11d48;
+  --accent-bright: #f43f5e;
+  --accent-deep: #be123c;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --surface: rgba(255, 255, 255, 0.92);
+  --glow: rgba(225, 29, 72, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 8% 0%, var(--glow), transparent 32%),
+      radial-gradient(circle at 92% 8%, rgba(244, 63, 94, 0.06), transparent 26%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+    font-family: var(--font-body), "Segoe UI", sans-serif;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    background-color: #e11d48;
+    color: #ffffff;
+    transition: background-color 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #be123c;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+}
