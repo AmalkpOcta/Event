@@ -1,0 +1,32 @@
+---
+description: MongoDB data access and injection safety
+globs: backend/**/*.{py,ts}
+alwaysApply: false
+---
+
+# MongoDB security
+
+- Never pass raw request JSON into `find`/`update` filters. Whitelist fields; build filters in code.
+- Block operator injection: reject keys starting with `$` from user-controlled objects.
+- Use least-privilege DB user (read/write only needed collections; no atlasAdmin in app).
+- Unique indexes: `(event_id, email)` for registrations; prevent duplicate joins.
+- Atomic capacity checks when seats are limited (update with condition, not read-then-write).
+- Encrypt connection with TLS; prefer SRV + authSource.
+- Do not return `_id` internals or other users' PII in list endpoints without authorization.
+- Soft-delete or restrict exports of participant PII; organizers only see their events' data.
+
+```python
+# ❌ BAD — operator injection risk
+await db.events.find(request.json()["filter"])
+
+# ✅ GOOD — explicit whitelist
+await db.events.find_one({"_id": ObjectId(event_id), "status": "open"})
+
+# ✅ GOOD — atomic seat claim
+result = await db.events.update_one(
+    {"_id": eid, "registration_count": {"$lt": capacity}},
+    {"$inc": {"registration_count": 1}},
+)
+if result.modified_count == 0:
+    raise HTTPException(status_code=409, detail="Registration closed or full")
+```

@@ -1,0 +1,26 @@
+---
+description: Next.js / React frontend security conventions
+globs: frontend/**/*.{ts,tsx,js,jsx}
+alwaysApply: false
+---
+
+# Next.js security
+
+- Never put secrets in `NEXT_PUBLIC_*`. Only publish anon/public config (e.g. API base URL).
+- Call backend via server actions or Route Handlers when cookies/tokens must stay httpOnly.
+- Sanitize/escape any user-generated HTML. Prefer text nodes; avoid `dangerouslySetInnerHTML`.
+- Do not store access tokens in `localStorage` / `sessionStorage`.
+- Validate forms client-side for UX; never rely on it for security.
+- Use CSRF protections when using cookie-based auth (SameSite + server checks).
+- Keep dependency versions patched; avoid installing packages for trivial one-liners.
+- External links: `rel="noopener noreferrer"` on `target="_blank"`.
+- Do not expose internal IDs or admin APIs in client bundles without auth gates.
+- Registration closed and quiz timers are UX only — the API remains the source of truth.
+
+```tsx
+// ❌ BAD
+localStorage.setItem("token", accessToken);
+
+// ✅ GOOD — httpOnly cookie set by backend, or server-side session
+// Browser never reads the raw access token in JS
+```

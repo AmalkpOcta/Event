@@ -1,0 +1,17 @@
+---
+description: Project-wide security baseline — no insecure defaults
+alwaysApply: true
+---
+
+# Security baseline
+
+- Never commit secrets. Use env vars only (`.env` gitignored). No API keys, Mongo URIs, or JWT secrets in code.
+- Never log passwords, tokens, OTPs, full phone numbers, or raw quiz answers with PII.
+- Fail closed: deny by default; allow only after authz checks.
+- Validate all external input (body, query, path, headers, file uploads) with schemas.
+- Do not disable security middleware "for convenience" (CORS `*`, CSRF, auth, rate limits).
+- Prefer parameterized queries / ODM APIs — never string-build Mongo queries from user input.
+- Return generic errors to clients; log details server-side only.
+- New endpoints need: auth (if not public), rate limit, input validation, least-privilege DB access.
+- Do not introduce `eval`, `exec`, `pickle.loads` on user data, or `dangerouslySetInnerHTML` with unsanitized input.
+- Follow `PROJECT.md` for architecture and domain rules when implementing features.

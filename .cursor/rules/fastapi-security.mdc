@@ -1,0 +1,31 @@
+---
+description: FastAPI / Python API security conventions
+globs: backend/**/*.py
+alwaysApply: false
+---
+
+# FastAPI security
+
+- Use Pydantic models for every request body/query; reject unknown fields where appropriate.
+- Hash passwords with Argon2 or bcrypt (passlib/argon2-cffi). Never store plaintext.
+- JWT: short-lived access tokens; prefer httpOnly Secure SameSite cookies over localStorage; rotate refresh tokens.
+- Enforce role checks (`organizer` vs `participant`) on every mutating route — never trust client-sent roles.
+- Registration/quiz answers: verify event ownership / registration ownership server-side.
+- Quiz timing: enforce deadlines and per-question timeouts on the server; ignore client clocks.
+- Hide correct answers from participant responses until after submit/event rules allow.
+- Enable CORS only for known frontend origins — never `allow_origins=["*"]` with credentials.
+- Add rate limiting on auth, register, AI generate, and answer-submit routes.
+- Use HTTPS-only in production; set secure cookie flags.
+- Dependency-inject DB/auth; avoid global mutable secrets.
+- Code must pass Bandit/pip-audit mindset — no `assert` for security checks, no `shell=True`, no hardcoded credentials.
+
+```python
+# ❌ BAD — client clock / trusting body for authz
+if body.is_organizer:
+    return answers
+
+# ✅ GOOD — server-side ownership check
+event = await get_event(event_id)
+if event.org_id not in current_user.org_ids:
+    raise HTTPException(status_code=403, detail="Forbidden")
+```

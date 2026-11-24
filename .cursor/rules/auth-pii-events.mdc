@@ -1,0 +1,16 @@
+---
+description: Auth, PII, and quiz integrity for the events platform
+alwaysApply: true
+---
+
+# Events / quiz domain security
+
+- Participant registration captures PII (name, email, phone): collect minimum needed; show privacy notice when UI is built.
+- One registration / one attempt per email per event unless product explicitly allows more.
+- AI question generation: organizer-only; rate-limit; never trust model output without schema validation; strip/limit prompt injection from subject text.
+- Correct answers and full answer keys: organizer-only endpoints.
+- After registration deadline or capacity full: reject new registrations server-side (UI alone is not enough).
+- Live quiz: authenticate participant session/token bound to `event_id` + `registration_id`.
+- Do not leak whether an email is registered via distinct error messages on auth where enumeration matters — use generic messaging.
+- Store all deadlines and timers in UTC; never trust the browser clock for eligibility or scoring.
+- See `PROJECT.md` for flows, collections, and API contracts before inventing alternate schemas.
