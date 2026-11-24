@@ -78,3 +78,35 @@ def serialize_event(
 
 def user_in_org(user: dict[str, Any], org_id: str) -> bool:
     return any(str(i) == org_id for i in user.get("org_ids", []))
+
+
+def is_event_expired(event: dict[str, Any], now: datetime | None = None) -> bool:
+    """Past / closed events sort after upcoming ones on home and org lists."""
+    now = now or utcnow()
+    status = event.get("status")
+    if status in (EventStatus.ended.value, EventStatus.cancelled.value):
+        return True
+    if status == EventStatus.draft.value:
+        return False
+    end_at = event.get("end_at")
+    if end_at and ensure_aware(end_at) < now:
+        return True
+    if ensure_aware(event["start_at"]) < now and status not in (
+        EventStatus.open.value,
+        EventStatus.registration_closed.value,
+        EventStatus.live.value,
+    ):
+        return True
+    return False
+
+
+def sort_events_upcoming_first(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    now = utcnow()
+
+    def sort_key(event: dict[str, Any]) -> tuple[int, float]:
+        expired = is_event_expired(event, now)
+        start_ts = ensure_aware(event["start_at"]).timestamp()
+        # Upcoming: soonest first. Expired: newest expired first, older last.
+        return (1 if expired else 0, start_ts if not expired else -start_ts)
+
+    return sorted(events, key=sort_key)
